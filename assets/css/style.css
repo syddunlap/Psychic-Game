@@ -1,3 +1,8 @@
+/* Insert background image */
+body {
+    background: url("../images/new_year_background.png");
+}
+
 /* Style the title of the game */
 #title {
     font-family: 'Pacifico', cursive;
@@ -10,11 +15,25 @@
     border-width: 2px;
 }
 
+/* This styles the images */
+img {
+    width: 100%;
+    margin: auto;
+}
+
+/* Create two equal columns side by side */
+.column {
+    float: left;
+    width: 50%;
+}
+
 /* Style the main body of the game */
 #game {
     font-family: 'Josefin Sans', sans-serif;
     text-align: center;
     line-height: 20px;
+    margin-left: 100px;
+    margin-right: 100px;
 }
 
 /* Style the "Instructions" part of the game */
@@ -22,11 +41,19 @@
     border-style: solid;
     border-width: 1px;
     padding: 5px 4px 4px 4px;
-    margin: 0px 100px 20px 100px;
+    margin: 0px 0px 20px 0px;
     font-size: 20px;
+    background-color: #00b386;
 }
 
 /* Style the currentword paragraph */
 #currentword {
     text-decoration: underline;
+}
+
+/* Style the Word for Hangman */
+#nationalPark {
+    font-size: 25px;
+    padding: 7px;
+    margin: 5px;
 }

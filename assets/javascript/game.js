@@ -112,14 +112,6 @@ Hangman.prototype.updatePageData = function() {
         tempString += " ";
     }
     lossCountElement.textContent = tempString;
-
-    for (var i = 0; i < blinkElements.length; i++) {
-		blinkElements[i].textContent = (this.gameOver ? pressAnyKeyToReset[i] : pressAnyKeyToStart[i]);
-	}
-
-	for (var i = 0; i < alertLineElements.length; i++) {
-		alertLineElements[i].textContent = (this.alertLines[i]);
-	}
 }
 
 game.updatePageData();
