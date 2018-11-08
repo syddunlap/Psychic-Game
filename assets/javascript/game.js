@@ -1,107 +1,125 @@
-// Create an array of the National Parks to be used as the source of the secret word. Save this array in the variable nationalParks
-var nationalPark = ["Yosemite", "Yellowstone", "Acadia", "Sequoia", "Zion", "Arches", "Glacier", "Badlands", "Olympic", "Shenandoah", "Denali", "Canyonlands", "Redwood", "Everglades", "Voyageurs"];
+var wins = 0;
+var losses = 0;
 
-const guesses = 10; // Max number of tries the player has
+var maxErrors = 15;
 
-var guessedLetters = []; // Stores the letters the user guessed
-var currentWordIndex; // Index of the current word in the array
-var guessingWord = []; // This will be the wored we actually build to match
-var remainingGuesses = 0; // How many tries the player has left
-var gameStarted = false; // Flag to tell if the game has started
-var hasFinished = false; // Flag for 'press any key to try again'
-var wins = 0; // How many wins the player has racked up.
+var wordDisplayLettersElement = document.getElementById("nationalPark");
+var guessedLettersElement = document.getElementById("letters");
+var errorCountElement = document.getElementById("guesses");
+var winCountElement = document.getElementById("wins");
+var lossCountElement = document.getElementById("losses");
 
-// Reset our game-level variables. Creating a function that sets up all the variables for the start of the game.
-function resetGame() {
-    remainingGuesses = maxTries;
-    gameStarted = false;
+var validGuesses = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
-    // Use Math,floor to round the random number down to the nearest whole
-    currentWordIndex = Math.floor(Math.random() * (nationalPark.length));
+var pressAnyKeyToStart = ["Press any key to start"];
+var pressAnyKeyToReset = ["Press any key to reset"];
+var youWin = ["You Win!"];
+var youLose = ["You Lose!"];
+var emptyAlert = [""];
 
-    //Clear out arrays
-    guessedLetters = [];
-    guessingWord = [];
+var game = new Hangman();
 
-    //Build the guessing word and clear it out
-    for (var i = 0; i < nationalPark[currentWordIndex].length; i++) {
-        guessingWord.push("_");
+document.onkeyup = function(event) {
+    var userGuess = event.key;
+
+    if (!game.gameOver) {
+        if (validGuesses.includes(userGuess) && !game.guessedLetters.includes(userGuess)) {
+            game.checkGuess(userGuess);
+        }
+    } else {
+        game = new Hangman();
+        game.updatePageData();
     }
 };
 
-// Updates the display on the HTML Page
-function updateDisplay() {
-    document.getElementById("wins").innerText = wins;
-    document.getElementById("nationalPark").innerText = "";
-    for (var i=0; i < nationalPark.length; i++) {
-        document.getElementById("nationalPark").innerText += nationalPark[i];
-    }
-    document.getElementById("guesses").innerText = remainingGuesses;
-    document.getElementById("letters").innerText = guessedLetters;
-    if(remainingGuesses <= 0) {
-        hasFinished === true;
-        alert("You lose! Try again!");
-    }
-};
+function Hangman() {
+    this.parkList = [
+        "yosemite", "yellowstone", "acadia", "sequoia", "zion", "arches", "glacier", "badlands", "olympic", "shenandoah", "denali", "canyonlands", "redwood", "everglades", "voyageurs"
+    ]
 
-// Capture the key presses 
-document.onkeydown = function(event) {
-    // If the game is over, use it as a reset
-    if(hasFinished) {
-        resetGame();
-        hasFinished = false;
+    this.park = this.parkList[Math.floor(Math.random() * this.parkList.length)];
+    this.guessedLetters = [];
+    this.errors = 0;
+    this.visibleLetters = [];
+    this.gameOver = false;
+    this.alertLines = emptyAlert;
+    for (var i = 0; i < this.park.length; i++){
+        this.visibleLetters[i] = (false);
     }
-    // Make sure a letter was pressed, not just any key.
-    else  {
-        if(event.keyCode >= 65 && event.keyCode <= 90) {
-            makeGuess(event.key.toLowerCase());
+}
+
+Hangman.prototype.checkGuess = function(char) {
+    this.guessedLetters.push(char);
+
+    var isInWord = false;
+    for (var i = 0; i <this.park.length; i++) {
+        if (this.park.charAt(i) === char) {
+            isInWord === true;
+            this.visibleLetters[i] = true;
         }
     }
-};
-
-// We only want this to happen for actual letters. This also makes it so that if the user guesses the same letter twice it won't make a difference in their remaining guesses.
-function makeGuess(letter) {
-    if (remainingGuesses > 0) {
-        if (!gameStarted) {
-            gameStarted = true;
-        }
-        if (guessedLetters.indexOf(letter) === -1) {
-            guessedLetters.push(letter);
-            evaluateGuess(letter);
-        }
+    if (!isInWord) {
+        this.errors++;
     }
 
-    updateDisplay();
-    checkWin();
-};
-
-// This function takes a letter and finds all instances of appearance in the string and replaces them in the guess word.
-function evaluateGuess(letter) {
-    var positions = [];
-    //Loop through word finding all instances of guessed letter, store the indices in an array.
-    for (var i = 0; i < nationalPark[currentWordIndex].length; i++){
-        if(nationalPark[currentWordIndex][i] === letter) {
-            positions.push(i);
-        }
-    } 
-
-    // if there are no indices, remove a guess
-    if (positions.length <= 0) {
-        remainingGuesses--;
+    if (this.errors >= maxErrors) {
+        losses++;
+        this.alertLines = youLose;
+        this.gameOver = true;
     }
-    else {
-        // Loop through all the indices and replace the '_' with a letter.
-        for (var i = 0; i < positions.length; i++) {
-            nationalPark[positions[i]] = letter;
-        }
-    }
-};
 
-//Finally, check for a win
-function checkWin() {
-    if (guessingWord.indexOf("_") === -1) {
+    if (!this.visibleLetters.includes(false)) {
         wins++;
-        hasFinished = true;
+        this.alertLines = youWin;
+        this.gameOver = true;
     }
+
+    game.updatePageData();
 };
 
+Hangman.prototype.updatePageData = function() {
+    var tempString = "";
+    for (var i = 0; i <this.visibleLetters.length; i++) {
+        tempString += ((this.visibleLetters[i] || this.gameOver) ? this.park.charAt(i).toUpperCase() : "_");
+        if (i < (this.visibleLetters.length - 1)) tempString += " ";
+    }
+    wordDisplayLettersElement.textContent = tempString;
+
+    tempString = "";
+    for (var i = 0; i < this.guessedLetters.length; i++) {
+        tempString += (this.guessedLetters[i].toUpperCase());
+        if (i < (this.guessedLetters.length - 1)) tempString += " ";
+    }
+    for (var i = tempString.length; i < 51; i++){
+        tempString += " ";
+    }
+    guessedLettersElement.textContent = tempString;
+
+    tempString = this.errors + " / " + maxErrors;
+    for (var i = tempString.length; i < 32; i++) {
+        tempString += " ";
+    }
+    errorCountElement.textContent = tempString;
+
+    tempString = wins + "";
+    for (var i = tempString.length; i < 45; i++) {
+        tempString += " ";
+    }
+    winCountElement.textContent = tempString;
+
+    tempString = losses + "";
+    for (var i = tempString.length; i < 43; i++) {
+        tempString += " ";
+    }
+    lossCountElement.textContent = tempString;
+
+    for (var i = 0; i < blinkElements.length; i++) {
+		blinkElements[i].textContent = (this.gameOver ? pressAnyKeyToReset[i] : pressAnyKeyToStart[i]);
+	}
+
+	for (var i = 0; i < alertLineElements.length; i++) {
+		alertLineElements[i].textContent = (this.alertLines[i]);
+	}
+}
+
+game.updatePageData();
